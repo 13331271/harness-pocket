@@ -1931,7 +1931,7 @@
     <string name="about_licenses_sub">Лицензии и уведомления третьих сторон для этой сборки</string>
     <string name="about_licenses_missing">Отсутствует файл: %1$s</string>
     <string name="asrapp_not_bundled">В этой сборке нет приложения-распознавателя. Если оно уже установлено, используйте его напрямую; ввод голоса также работает через совместимый с OpenAI ASR-эндпоинт, настроенный ниже.</string>
-    <string name="dialog_engine_message">Состояние: %1$s\nПорт: %2$d\nВстроенный движок: 0.2.2-rc.5</string>
+    <string name="dialog_engine_message">Состояние: %1$s\nПорт: %2$d\nВстроенный движок: 0.2.2-rc.3</string>
     <string name="dialog_engine_title">Движок</string>
     <string name="pocket_linux_unavailable">Эта сборка содержит нативный движок Harness для Android. Необязательный проприетарный контейнер Linux и графический сервер не включены. Используйте нативные рабочие области и совместимые инструменты Android.</string>
     <string name="pocket_manual_update_only">Эта локальная сборка обновляется вручную через APK. Автоматическая замена приложения и среды отключена, чтобы сохранить данные и нативные исправления.</string>

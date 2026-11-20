@@ -1891,7 +1891,7 @@
     <string name="about_licenses_sub">Avisos de licença e de terceiros desta versão</string>
     <string name="about_licenses_missing">Arquivo ausente: %1$s</string>
     <string name="asrapp_not_bundled">Esta versão não distribui o aplicativo de reconhecimento. Se ele já estiver instalado, use-o diretamente; a entrada de voz também funciona pelo endpoint ASR compatível com OpenAI configurado abaixo.</string>
-    <string name="dialog_engine_message">Status: %1$s\nPorta: %2$d\nMotor integrado: 0.2.2-rc.5</string>
+    <string name="dialog_engine_message">Status: %1$s\nPorta: %2$d\nMotor integrado: 0.2.2-rc.3</string>
     <string name="dialog_engine_title">Motor</string>
     <string name="pocket_linux_unavailable">Esta versão inclui o motor Harness nativo do Android. O contêiner Linux proprietário opcional e o servidor gráfico não estão incluídos. Use espaços de trabalho nativos e ferramentas Android compatíveis.</string>
     <string name="pocket_manual_update_only">Esta versão local é atualizada manualmente pelo APK. A substituição automática do aplicativo e do runtime está desativada para preservar os dados e as correções nativas.</string>

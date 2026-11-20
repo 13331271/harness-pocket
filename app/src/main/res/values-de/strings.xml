@@ -1937,7 +1937,7 @@
     <string name="about_licenses_sub">Lizenz- und Drittanbieterhinweise dieser Version</string>
     <string name="about_licenses_missing">Fehlende Datei: %1$s</string>
     <string name="asrapp_not_bundled">Diese Version liefert die Erkennungs-App nicht mit. Ist sie bereits installiert, nutze sie direkt; Sprachaufnahme funktioniert auch über den unten konfigurierten OpenAI-kompatiblen ASR-Endpunkt.</string>
-    <string name="dialog_engine_message">Status: %1$s\nPort: %2$d\nEingebauter Motor: 0.2.2-rc.5</string>
+    <string name="dialog_engine_message">Status: %1$s\nPort: %2$d\nEingebauter Motor: 0.2.2-rc.3</string>
     <string name="dialog_engine_title">Motor</string>
     <string name="pocket_linux_unavailable">Diese Version enthält den nativen Android-Harness-Motor. Der optionale proprietäre Linux-Container und Grafikserver sind nicht enthalten. Nutze native Arbeitsbereiche und kompatible Android-Werkzeuge.</string>
     <string name="pocket_manual_update_only">Diese lokale Version wird per APK manuell aktualisiert. Automatisches Ersetzen von App und Laufzeit ist deaktiviert, um Daten und native Korrekturen zu erhalten.</string>

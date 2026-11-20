@@ -913,7 +913,7 @@
     <string name="setting_engine">引擎</string>
     <string name="setting_engine_sub_idle">引擎已就绪 · 3080</string>
     <string name="dialog_engine_title">引擎</string>
-    <string name="dialog_engine_message">状态：%1$s\n端口：%2$d\n内置引擎：0.2.2-rc.5</string>
+    <string name="dialog_engine_message">状态：%1$s\n端口：%2$d\n内置引擎：0.2.2-rc.3</string>
     <string name="setting_maintenance">维护与高级</string>
     <string name="setting_maintenance_sub">自检、启动详情、插件应急开关与重启引擎</string>
     <string name="action_go_enable">去开启</string>

@@ -1015,7 +1015,7 @@
     <string name="setting_engine">Engine</string>
     <string name="setting_engine_sub_idle">Engine ready · 3080</string>
     <string name="dialog_engine_title">Engine</string>
-    <string name="dialog_engine_message">Status: %1$s\nPort: %2$d\nBuilt-in engine: 0.2.2-rc.5</string>
+    <string name="dialog_engine_message">Status: %1$s\nPort: %2$d\nBuilt-in engine: 0.2.2-rc.3</string>
     <string name="setting_maintenance">Maintenance &amp; advanced</string>
     <string name="setting_maintenance_sub">Self-check, startup details, plugin kill switch and restart engine</string>
     <string name="action_go_enable">Enable</string>

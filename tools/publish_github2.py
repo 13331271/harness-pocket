@@ -44,8 +44,9 @@ def request(method: str, path: str, token: str, payload=None) -> tuple[int, dict
             return resp.status, (json.loads(body) if body else None)
     except urllib.error.HTTPError as e:
         return e.code, {"error": e.read().decode("utf-8", "replace")[:300]}
-    except (urllib.error.URLError, TimeoutError, http.client.IncompleteRead) as e:
-        # A truncated read is a flaky link, not a semantic failure: retryable.
+    except (urllib.error.URLError, TimeoutError, http.client.HTTPException, OSError) as e:
+        # Truncated reads / dropped connections are flaky-link symptoms, not
+        # semantic failures: report as retryable (status 0).
         return 0, {"error": str(e)}
 
 
@@ -86,8 +87,8 @@ def collect(root: Path) -> dict[str, Path]:
     for n in sorted((root / "build-scripts").iterdir()):
         if n.is_file() and n.suffix in {".py", ".ps1"} and not n.name.startswith("_"):
             files["tools/" + n.name] = n
-    for extra, rel in (("runtime-derived/runtime-meta.json", "docs/runtime-meta.json"),
-                       ("deliverables/验证报告-0.2.0.zh.md", "docs/验证报告-0.2.0.zh.md")):
+    for extra, rel in (("runtime-derived-v16/runtime-meta.json", "docs/runtime-meta.json"),
+                       ("deliverables/验证报告-0.2.2.zh.md", "docs/验证报告-0.2.2.zh.md")):
         p = root / extra
         if p.is_file():
             files[rel] = p

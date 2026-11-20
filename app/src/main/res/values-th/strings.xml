@@ -1881,7 +1881,7 @@
     <string name="about_licenses_sub">ประกาศสัญญาอนุญาตและบุคคลที่สามของบิลด์นี้</string>
     <string name="about_licenses_missing">ไม่พบไฟล์: %1$s</string>
     <string name="asrapp_not_bundled">บิลด์นี้ไม่ได้แจกแอปตรวจจับเสียง หากติดตั้งไว้แล้วให้เปิดใช้ได้เลย การป้อนเสียงยังใช้ปลายทาง ASR ที่รองรับ OpenAI ซึ่งตั้งค่าไว้ด้านล่างได้</string>
-    <string name="dialog_engine_message">สถานะ: %1$s\nพอร์ต: %2$d\nเอนจินในตัว: 0.2.2-rc.5</string>
+    <string name="dialog_engine_message">สถานะ: %1$s\nพอร์ต: %2$d\nเอนจินในตัว: 0.2.2-rc.3</string>
     <string name="dialog_engine_title">เอนจิน</string>
     <string name="pocket_linux_unavailable">บิลด์นี้มีเอนจิน Harness แบบเนทีฟของ Android คอนเทนเนอร์ Linux และเซิร์ฟเวอร์กราฟิกแบบเฉพาะสิทธิ์ไม่ได้รวมอยู่ด้วย โปรดใช้เวิร์กสเปซแบบเนทีฟและเครื่องมือ Android ที่เข้ากันได้</string>
     <string name="pocket_manual_update_only">บิลด์โลคอลนี้อัปเดตด้วย APK ด้วยตนเอง ระบบแทนที่แอปและรันไทม์อัตโนมัติถูกปิดไว้เพื่อรักษาข้อมูลและการแก้ไขแบบเนทีฟ</string>
