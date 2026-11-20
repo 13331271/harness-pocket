@@ -33,7 +33,15 @@ object PetPrefs {
     private fun prefs(ctx: Context) =
         ctx.applicationContext.getSharedPreferences(DshApp.PREFS_UI, Context.MODE_PRIVATE)
 
-    fun enabled(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_ENABLED, false)
+    /**
+     * v0.2.7（用户要求）：桌宠下线。保留偏好读写接口不动，但「是否启用」恒为 false，
+     * 于是 restoreIfEnabled 不会再拉起悬浮窗，已开启的旧配置也不会被删掉（将来要恢复
+     * 只需把这个常量改回读取偏好）。
+     */
+    private const val PET_RETIRED = true
+
+    fun enabled(ctx: Context): Boolean =
+        if (PET_RETIRED) false else prefs(ctx).getBoolean(KEY_ENABLED, false)
 
     fun setEnabled(ctx: Context, enabled: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_ENABLED, enabled).apply()

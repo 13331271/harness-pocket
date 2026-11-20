@@ -256,7 +256,22 @@ class KernelUpgradeActivity : ThemedActivity() {
     private fun startUpgrade(target: String) {
         if (busy) return
         setBusy(true, R.string.kernel_upgrading)
-        Thread { runUpgrade(target) }.start()
+        Thread {
+            try {
+                runUpgrade(target)
+            } catch (t: Throwable) {
+                // Never let an upgrade bug take the app down: show it instead.
+                log("ERROR: ${t.javaClass.simpleName}: ${t.message}")
+                ui.post {
+                    setBusy(false, R.string.kernel_failed)
+                    android.app.AlertDialog.Builder(this)
+                        .setTitle(R.string.kernel_failed)
+                        .setMessage("${t.javaClass.simpleName}: ${t.message}")
+                        .setPositiveButton(R.string.close, null)
+                        .show()
+                }
+            }
+        }.start()
     }
 
     private val patchFiles = listOf(
@@ -334,13 +349,13 @@ class KernelUpgradeActivity : ThemedActivity() {
         val ok = upgradeTo(engine, target, backup)
         if (!ok) {
             log("升级失败，正在回滚到 $oldVersion …")
-            supervisor.start(kotlinx.coroutines.MainScope())
-            restorePatches(engine, backup)
+            runCatching { restorePatches(engine, backup) }
+            runCatching { supervisor.restart() }
             ui.post { setBusy(false, R.string.kernel_failed) }
             return
         }
         log("升级完成，正在重启引擎 …")
-        supervisor.restart()
+        runCatching { supervisor.restart() }.onFailure { log("restart failed: ${it.message}") }
         ui.post {
             refreshLocal()
             setBusy(false, R.string.kernel_done)
@@ -349,8 +364,11 @@ class KernelUpgradeActivity : ThemedActivity() {
 
     private fun upgradeTo(engine: File, target: String, backup: File): Boolean {
         log("stopping engine …")
-        supervisor.stop(graceMs = 12_000, explicit = true)
-        val code = runNpm(engine, "@deepseek-ai/dsh@$target")
+        val stopped = runCatching { supervisor.stop(graceMs = 12_000, explicit = true) }
+            .getOrElse { e -> log("stop failed: ${e.message}"); false }
+        log("engine stopped=$stopped")
+        val code = runCatching { runNpm(engine, "@deepseek-ai/dsh@$target") }
+            .getOrElse { e -> log("npm failed: ${e.message}"); -1 }
         log("npm exit=$code")
         restorePatches(engine, backup)
         if (code != 0) return false
