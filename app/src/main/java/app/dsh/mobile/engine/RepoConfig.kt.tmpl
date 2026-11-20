@@ -1,0 +1,27 @@
+package app.dsh.mobile.engine
+
+/**
+ * GitHub repository used for in-app update checks and runtime downloads.
+ *
+ * This file is a TEMPLATE. At build time `scripts/apply-fork-links.py` copies it
+ * into `build/generated/repoConfig/` and rewrites the owner/repo pair from
+ * `-PupdateRepo=OWNER/REPO` (see the `generateRepoConfig` task). Do not hand-edit
+ * generated output; edit this template or pass the property.
+ */
+object RepoConfig {
+    /** GitHub `OWNER/REPO`, used for the Releases API and asset downloads. */
+    const val REPO = "13331271/harness-pocket"
+
+    /** Base URL of the Releases API for this build's own repository. */
+    const val API_BASE = "https://api.github.com/repos/13331271/harness-pocket"
+
+    /** Browser-openable Releases page. */
+    const val RELEASES_PAGE = "https://github.com/13331271/harness-pocket/releases"
+
+    /** Fixed download prefix for the runtime index / runtime assets (latest release). */
+    const val RELEASES_LATEST = "https://github.com/13331271/harness-pocket/releases/latest/download"
+
+    /** Asset prefix for a specific tag. */
+    fun releaseDownload(tag: String): String =
+        "https://github.com/13331271/harness-pocket/releases/download/$tag"
+}

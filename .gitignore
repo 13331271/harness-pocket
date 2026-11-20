@@ -1,0 +1,346 @@
+*.iml
+.gradle*/
+.scratch/
+.workbuddy/
+local.properties
+.idea/
+build/
+app/build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+# 运行时快照不入库（CI 构建时注入）
+app/src/main/assets/runtime.zip
+# ABI 戳是构建产物：入库会让 CI 的 prepareRuntime 命中 skip 分支，
+# 绕过 PTC 补丁校验与去重（审查 P1，v1.4.16）
+app/src/main/assets/runtime/.abi
+# 签名密钥绝不入库（release 与 debug 同一套规矩：只存在于 CI secrets 与本地磁盘）
+keystore/
+*.keystore
+*.jks
+# 整个目录都不入库，**包括**证书指纹：期望值统一走 CI 变量 DEBUG_CERT_SHA256，
+# 仓库里不保留任何与该 key 同源的文件（少一个需要同步的地方，也不会有人拿旧指纹当准）。
+# ⚠️ 不要写成 `!debug-signing/xxx`：解禁单个文件时极易顺手解禁目录，而目录里躺着
+#    dsh-debug.properties（口令）与 dsh-debug.keystore.base64（私钥本体）。
+debug-signing/*
+# 扩展闭包审计缓存（scripts/audit-extension-closures.py）
+_debcheck/
+
+# 工具产生的会话/钩子状态（非项目内容）
+.mimosa/
+# WorkBuddy 的工作记忆（设备/构建踩坑记录，同 .mimosa/ 性质，不入库）
+
+# Python 字节码缓存
+__pycache__/
+*.pyc
+
+# patch-curl-wrapper.py / dedupe-runtime.py 的自动备份（体积大，不入库）
+app/src/main/assets/*.bak
+app/src/main/assets/*.tmp
+
+# 本地 runtime 快照备份（126MB × N，不入库；assets 里的备份会被打进 APK）
+_runtime_bak/
+
+# 本地临时测试产物（真机会话样本等）
+_*.zstd
+_*.png
+_probe_*
+scripts/probes/testsite/*.apk
+scene_memory.json
+dist/
+_release_*.py
+node_modules/
+
+# dev probe artifacts
+scripts/probes/_parts/
+scripts/probes/*.bin
+
+# 根目录调试草稿（UI dump / 临时截图 / 一次性分析脚本，v1.4.x 清理）
+/_*.xml
+/_*.png
+/_*.mjs
+/_*.sh
+/_*.json
+# v1.6.0-beta.14：一次性分析/出图脚本（读 catalog、数端点、裁发布图）——
+# 它们只是当时取证用的草稿，不是项目工具，留在 status 里会一直被误认为「本会话 WIP」
+/_*.py
+# 截图/构建日志的临时堆放目录
+/_tmp_shots/
+/social-preview.png
+/dsh-mobile-social.png
+
+# 性能分析临时产物
+/_cmp/
+/_fstest*/
+
+# 本地探针脚本（只保留已跟踪的正式测试）
+/scripts/probes/*
+!/scripts/probes/_test_narrow_sidebar.mjs
+!/scripts/probes/_test_narrow_rightbar.mjs
+!/scripts/probes/_test_narrow_settings.mjs
+!/scripts/probes/_test_narrow_perf.mjs
+!/scripts/probes/_test_narrow_jsdom.mjs
+# v1.7.0：ask-bridge 的运行时测试（真 HTTP 假桥 + 真插件模块），
+# 证明「原生提问真的被接走、失败真的让路」，静态探针做不到。
+!/scripts/probes/_test_ask_bridge.mjs
+!/scripts/probes/_test_mcp_image.mjs
+!/scripts/probes/_test_linux_frame_surface.py
+# Linux 画面启动探针（v1.6.0-beta.12）：守住 pkill 自杀、写死 :99、-nolock、假成功四类回归
+!/scripts/probes/_test_linux_frame_launch.py
+!/scripts/probes/_test_linux_chroot_sandbox.py
+!/scripts/probes/_test_linux_workbench.py
+!/scripts/probes/_test_linux_jobs.py
+# WebView 语法门槛探针：守住 AppGate.MIN_WEBVIEW_CHROME 不被改低（v1.6.8）
+!/scripts/probes/_test_webview_syntax_floor.mjs
+# Android API 下限探针：禁止 skipNBytes/readNBytes 这类 minSdk 之上才有的 API（issue #98）
+!/scripts/probes/_test_android_api_floor.py
+# 容器 DNS 免 root 桥接探针：守住 sendto 出程 + recvfrom 回程双向改写（v1.6.13）
+!/scripts/probes/_test_linux_dns_bypass.py
+# 预置编译缓存探针：守住「首次冷启解缓存」的接线与顺序（v1.6.16）
+!/scripts/probes/_test_linux_cache_seed.py
+# 容器符号链接 + lchown 翻译探针：守住 Ubuntu apt 装包链路（v1.5.1）
+!/scripts/probes/_test_dsh_alpine_symlink_rel.py
+# 扩展中心健康检查/修复分派探针：守住 Linux 模式不走 Termux 的 MARKER 体系（v1.5.1）
+!/scripts/probes/_test_linux_ext_health.py
+# 引导页 v2 探针：七步结构 / 双形态 / 配色重涂 / 能力开关分组 / 首页按钮不偏右（v1.7.0）
+!/scripts/probes/_test_onboarding_v2.py
+# 界面风格令牌探针（v1.8.0）：守住「两套风格真的分叉、通知图标不被 attr 化」
+!/scripts/probes/_test_style_tokens.py
+# 语音服务页「本地识别状态卡」的版本闸门（v1.8.2 真机事故）：
+# 只判 getPackageInfo 成功就会把「装了旧版」当成「已安装」，一键按钮点下去抛
+# ActivityNotFoundException，再被兜底说成「请先安装」→ 用户明明装了却被告知没装。
+!/scripts/probes/_test_voice_asr_version.py
+# 主题取色重建闭环探针（v1.7.14，移植 PR #102）：守住「点动态取色不许疯狂闪烁」——
+# 开关不自恢复、模式未变不重建、系统栏按 colorSurface 取色（M1–M4 四个变异都验证过会变红）
+!/scripts/probes/_test_theme_flicker.py
+# 凭据失败判定探针：守住「日志时间戳里的 401 不能触发重新登录」（v1.5.3）
+!/scripts/probes/_test_engine_auth_marker.py
+# 引擎失败归因探针（v1.5.3）：守「失败必须被归类成可判断的原因」
+!/scripts/probes/_test_engine_triage.py
+!/scripts/probes/_test_engine_triage_behavior.py
+# 降级可见性探针（v1.5.3）：守「引擎起来了但插件半残」不许只写日志
+!/scripts/probes/_test_engine_degraded_visible.py
+# SELinux 上下文自愈探针（v1.5.3）：守「必须走特权通道 / 必须带 -h / 检测必须用 ls -Zd」
+!/scripts/probes/_test_selinux_context_heal.py
+# 设置体系主题一致性探针（v1.5.4）：守「布局用了 ?attr 但主题没提供」这种只崩运行时的回归
+!/scripts/probes/_test_settings_theme_consistency.py
+
+# Ubuntu 包名索引快照（_test_linux_ext_bridge.py 离线核对用；
+# 69641 个包名，gzip 后 329 KB。刷新见 AI_CONTEXT.md §一·九）
+!/scripts/probes/data/
+!/scripts/probes/data/aptindex-names.txt.gz
+# 源码/产物同步探针：守住 dsh_alpine.c 与 libdsh_alpine.so 不漂移（v1.6.13）
+!/scripts/probes/_test_dsh_alpine_source_sync.py
+# apt 非 root 装包探针：守「Dpkg::Options 强制非 root / diversions 备份 / transcript 留档」
+!/scripts/probes/_test_linux_apt_nonroot.py
+# 符号链接 MCS 标签漂移探针：守「裸 s0 链接必须被识别并重打标签」
+!/scripts/probes/_test_linux_symlink_drift.py
+# seccomp 系统调用翻译探针：守住 select/fork/poll/dup2 四个等价翻译不被删（v1.7.x）
+!/scripts/probes/_test_seccomp_syscall_translation.py
+!/scripts/probes/_bench_narrow_before_after.mjs
+!/scripts/probes/attachment-read-probe.mjs
+!/scripts/probes/test_embed.mjs
+!/scripts/probes/test_pick.py
+!/scripts/probes/_test_responsive_native_ui.py
+!/scripts/probes/_test_linux_ext_bridge.py
+# 多 rootfs 目录（Alpine/Ubuntu 并存、glibc 补丁、interp/node 跟随发行版）
+!/scripts/probes/_test_linux_rootfs_catalog.py
+!/scripts/probes/_test_linux_pkg_distro.py
+!/scripts/probes/_test_plugin_render_paging.py
+!/scripts/probes/_test_runtime_dedupe.py
+!/scripts/probes/_test_root_pnpm_locks.py
+!/scripts/probes/_test_plugin_engine_compat.py
+!/scripts/probes/_test_plugin_install_errors.py
+# 扩展入口补链守卫（v1.6.0-beta.15）：守住「相对 target 按链接父目录解析」+
+# 安装期清单重放 + 启动期存量补链 + binutils 声明别名 + 仍拒真越界
+!/scripts/probes/_test_ext_link_guard.py
+!/scripts/probes/_test_webview_media_permission.py
+!/scripts/probes/_test_webview_polyfill_v4.py
+!/scripts/probes/_test_webview_polyfill_v4.mjs
+!/scripts/probes/zstd-tail.js
+!/scripts/probes/_test_debug_signing.py
+!/scripts/probes/_test_update_index_direct.py
+!/scripts/probes/_test_update_asset_picker.py
+!/scripts/probes/_test_update_prefs.py
+!/scripts/probes/_test_update_no_runtime_downgrade.py
+!/scripts/probes/_test_update_failure_kind.py
+!/scripts/probes/_test_ci_native_components.py
+!/scripts/probes/_test_update_index_runtime_fields.py
+!/scripts/probes/_test_runtime_stamp_truth.py
+!/scripts/probes/_test_gradle_launcher_patch.py
+!/scripts/probes/_test_boot_trace.py
+!/scripts/probes/_test_security_audit.py
+!/scripts/probes/_test_gate_scripts.py
+!/scripts/probes/_test_download_url_scheme.py
+!/scripts/probes/_test_index_signing_diagnostics.py
+!/scripts/probes/_test_hid_tool.py
+!/scripts/probes/_test_picker_health_probe.py
+!/scripts/probes/_test_mcp_device_server.py
+!/scripts/probes/_test_engine_spawn_env.py
+!/scripts/probes/_verify_engine_spawn_backwards.py
+!/scripts/probes/_test_webview_polyfill_gate.py
+!/scripts/probes/_test_capability_discovery.py
+!/scripts/probes/_verify_capability_discovery_backwards.py
+!/scripts/probes/_test_back_guard.py
+!/scripts/probes/_test_chat_wiper.py
+!/scripts/probes/_test_runtime_required_panel.py
+!/scripts/probes/_test_splash_redesign.py
+!/scripts/probes/_test_splash_libc_label.py
+!/scripts/probes/_test_repo_credits.py
+!/scripts/probes/_test_agent_context_seed.py
+!/scripts/probes/_test_appearance_pr93.py
+!/scripts/probes/_test_btsnoop_parser.py
+!/scripts/probes/_test_net_block.py
+!/scripts/probes/_test_new_capabilities.py
+!/scripts/probes/_test_about_star_promo.py
+!/scripts/probes/_test_settings_endpoint.py
+!/scripts/probes/_test_mobile_layout_upgrade.py
+!/scripts/probes/_test_bundled_profile_plugins.py
+!/scripts/probes/_test_ext_multiversion.py
+!/scripts/probes/_test_fast_mode_engine_compat.py
+!/scripts/probes/_fast_mode_runtime_test.mjs
+!/scripts/probes/_test_root_gate.py
+!/scripts/probes/_verify_root_gate_backwards.py
+!/scripts/probes/_test_root_channels.py
+!/scripts/probes/_test_vscreen.py
+!/scripts/probes/_test_container_gates.py
+!/scripts/probes/_test_memory_scoring.py
+!/scripts/probes/_verify_root_channels_backwards.py
+!/scripts/probes/_test_share_inbox.py
+!/scripts/probes/_test_device_caps_new.py
+!/scripts/probes/_test_atomic_write_lock.py
+!/scripts/probes/_verify_share_inbox_backwards.py
+!/scripts/probes/_test_agent_preset_fallback.py
+!/scripts/probes/_verify_agent_preset_fallback_backwards.py
+!/scripts/probes/_agent_preset_fallback.mjs
+!/scripts/probes/_test_glass_effects.py
+# v1.6.19：屏幕文档 v2（编号 + 指纹预校验）与安全层。守住的契约是「格式与顺序」，
+# 写错的后果是「偶尔点错一下」——表现随机、事后极难归因，所以必须进 CI。
+!/scripts/probes/_test_screen_mask.py
+!/scripts/probes/_test_protected_pages.py
+!/scripts/probes/_test_a11y_screen_doc.py
+tasks/
+_bench/
+
+# 宣传视频素材（体积大，不入库；需要时按 docs/promo/video/MATERIALS.md 重新采集）
+docs/promo/video/assets/*.mp4
+docs/promo/video/assets/*.png
+
+# Remotion 宣传视频工程：依赖与渲染产物不入库，源码与文档入库
+docs/promo/video/remotion/node_modules/
+docs/promo/video/remotion/out/
+docs/promo/video/remotion/.remotion/
+docs/promo/video/remotion/public/fonts/
+docs/promo/video/remotion/public/assets/
+
+# 运行时包与编译期崩溃日志不入库（体积大、可重新下载/自动生成）
+_runtime_dl/
+hs_err_pid*.log
+_rel/
+
+# 本地编译测试覆盖位（v1.5.0）：放自建 tgz 覆盖 CI 资产，不入库
+local-overrides/
+
+# 全量测试必跑、此前只在工作区、未跟踪的 9 个探针（2026-11-09 补登记）。
+# 未登记的直接后果：新 worktree / 干净 clone 里这些探针**根本不存在**，
+# 全量测试静默少跑 9 项，而输出看起来「全过」—— 这正是「跳过当通过」。
+!/scripts/probes/_test_boot_retry_bounds.py
+!/scripts/probes/_test_chat_perf.mjs
+!/scripts/probes/_test_corepack_hardlink.py
+!/scripts/probes/_test_data_import.py
+!/scripts/probes/_test_native_plugin_check.py
+!/scripts/probes/_test_overlay_patch_semantics.py
+!/scripts/probes/_test_plugin_market_cache.py
+!/scripts/probes/_test_seed_persona.py
+!/scripts/probes/_test_stopping_reset.py
+!/scripts/probes/_test_update_index_asset_names.py
+!/scripts/probes/_test_linux_shm.py
+!/scripts/probes/_test_linux_capture.py
+!/scripts/probes/_test_linux_gate_guestview.py
+!/scripts/probes/_test_linux_startup_deps.py
+!/scripts/probes/_test_linux_runner_binds.py
+!/scripts/probes/_test_linux_bootstrap_log.py
+!/scripts/probes/_test_pkill_selfmatch.py
+# cleaner 对端凭据探针：守住抽象 socket 跨 uid 提权面（v1.6.17）
+!/scripts/probes/_test_cleaner_peercred.py
+# cleaner 消息容量边界探针：守住两端 64KB + 循环 IO + 超限显式失败（v1.6.18）
+!/scripts/probes/_test_cleaner_msg_size.py
+# cleaner argv/env 条数上限探针：守住宏单源 + 超限显式失败（v1.6.19）
+!/scripts/probes/_test_cleaner_argenv_count.py
+!/scripts/probes/_test_rev_extensions.py
+!/scripts/probes/_data_termux_pkg_bins.txt
+# 终端工具 / 媒体 / 组网三类扩展（v1.6.21）：rootOnly 语义边界与数据/UI 双端接线
+!/scripts/probes/_test_net_cli_extensions.py
+!/scripts/probes/_test_ext_ai_mode.py
+!/scripts/probes/_test_readiness_heal_order.py
+!/scripts/probes/_test_turnwatcher_oom.py
+!/scripts/probes/_test_permission_center_groups.py
+# 原生模式编译缓存（v1.5.2）：注入 / 两模式分根 / flusher 取宿主路径 / flag 排位
+!/scripts/probes/_test_native_compile_cache.py
+!/scripts/probes/_test_linux_pkg_offline.py
+!/scripts/probes/_test_resume_reconnect.py
+!/scripts/probes/_test_remote_access.py
+!/scripts/probes/_kstrip.py
+
+!/scripts/probes/_test_island_side_panel.py
+!/scripts/probes/_test_run_mode_overlay.py
+
+# 审查清单修复回归（v1.7.12）：4 个 P1 + 8 个 P2，每条对应一个真实缺陷
+!/scripts/probes/_test_review_fixes_20261113.py
+
+# 引擎堆上限（v1.6.0）：Android 上 node 默认老生代只有 1120MB，超大会话必崩。
+# 守住的契约是「两条启动路径都真的带上 --max-old-space-size」——只定义不接线是
+# 本仓反复出现的假绿形态，所以必须进 CI。
+!/scripts/probes/_test_engine_heap_cap.py
+
+# HTTP 响应体读取（2026-11-13 真机事故）：`read -N` 在设备 bash 上对非阻塞 socket
+# 只读「当前可用的那一段」就返回，且返回非 0 时已读内容仍在变量里。旧写法只看返回
+# 值就把整段丢掉 —— 调用方拿到空串 + 报错，而同样端点 curl 直连完全正常。
+# 这条守护「拿到多少算多少、循环补读、总时限、短读报出实得字节」四件事。
+!/scripts/probes/_test_http_body_read.py
+
+# 悬浮窗「执行中」必须能自己回空闲（2026-11-13 真机反馈）：AI 收手后画面一直停在
+# 「正在操作中」。根因是 noteWorking 只切状态、不排兜底定时器，而任务空闲回收要等
+# 3 分钟、onTurnEnd 又只在任务不活跃时才刷完成 —— 两条叠加就没有任何路径改回来。
+# 这条同时锁「兜底时长不写死数字」与「兜底 >= PhoneTask.idleMs」。
+!/scripts/probes/_test_overlay_idle_reset.py
+
+# v1.7.x：动作与屏幕状态的对账 —— expect_pkg 硬校验、foregroundChanged 回报、
+# /dev/verify 区分 text-not-found / foreground-changed / wrong-screen、click 带
+# hit 快照。真实事故是「点轨迹切到 QQ，下一次仍按旧快照点开了聊天」，本质是
+# 「没等到」和「世界变了」被压成同一个 timeout。
+!/scripts/probes/_test_action_screen_guard.py
+
+# v1.6.x：系统级开关（飞行/省电/勿扰/旋转/护眼/热点）的接线与回读守卫。
+# 这类命令的通病是「返回成功 ≠ 状态真的变了」，探针必须校验回读比对本身，
+# 否则把 val matched = (actual == want) 改成 val matched = true 也能全绿。
+!/scripts/probes/_test_system_toggles.py
+
+# v1.7.14：灵动岛两处观感契约。
+# ① 「收起态展开只撑开一次」——旧代码先 renderIslandVisibility() 再在 120ms 后
+#    压小重撑，屏幕上是满宽亮相→消失→再撑开；探针锚定起点属性必须早于渲染。
+# ② 侧边面板边缘投影 —— setShadowLayer 在硬件画布上**静默失效**（只剩硬边矩形，
+#    正好是用户不要的「描边」），所以必须钉住 LAYER_TYPE_SOFTWARE，不能只看有没有
+#    调用 setShadowLayer。
+!/scripts/probes/_test_island_expand_once.py
+!/scripts/probes/_test_island_panel_shadow.py
+
+# 本地临时产物（APK 副本、抓包脚本等，单次 200MB+）
+/tmp/
+
+# UI 预览服务的运行时状态（含 pid，不属于源码）
+docs/ui-preview/.preview-server.json
+
+# #110 隐藏的开发者选项：7 连击解锁、陈旧入口自守、不绕过 CapabilityGate
+!/scripts/probes/_test_developer_options.py
+
+# WebView polyfill 交付链路探针（issue #107）：守住「patch 脚本是唯一真源、构建期
+# 导出 asset、运行期两条路径自愈、WebView 只拦引擎首页」这一整条链，以及
+# URL.canParse 不许被改名成没人用的名字（改名后现场照样 TypeError，探针要红）。
+!/scripts/probes/_test_webview_polyfill_delivery.py
+# 锚定浮层定位兜底探针（issue #119）：守住能力门禁（position-anchor）、只动
+# role=dialog 且非 aria-modal 的浮层、内联 !important 与视口夹取；含三条负对照。
+!/scripts/probes/_test_chat_anchor_fallback.py
+!/scripts/probes/_chat_anchor_fallback_runtime_test.mjs

@@ -1,0 +1,19 @@
+{
+  "version": "2026.11.18-pocket-951b1843",
+  "abi": "arm64-v8a",
+  "engineVersion": "0.2.2-rc.1",
+  "builtAt": 1794973473,
+  "sha256": "3d5d93bdb88dfe35809918a5d4a2a9c5b783b86313493ea20fb1a0927bf45e89",
+  "size": 137195053,
+  "unpackedBytes": 438441738,
+  "upstreamRuntimeSha256": "fab5cd6689840e1e86625080924c3aa0fdbcb7bee6db3ef98aaee2ecdc1b0394",
+  "contentSha256": "951b184340b781a8b6ada0c818b9be530e1fc6c93d18d69b527484d974e2df9b",
+  "modifiedEntries": [
+    "BUILD.json",
+    "lib/node_modules/@deepseek-ai/dsh-session-persistence-jsonl/lib/index.js",
+    "lib/node_modules/@deepseek-ai/node-addon-system/lib/flock.js",
+    "lib/node_modules/@deepseek-ai/node-addon-system/lib/pocket_flock.node",
+    "lib/node_modules/node-pty/lib/index.js"
+  ],
+  "deviceExecution": "not yet verified"
+}

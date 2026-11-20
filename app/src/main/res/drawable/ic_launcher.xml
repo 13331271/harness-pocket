@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 自适应图标（v0.2.2）：白底 + 用户提供的鲸娘吉祥物位图；单色层供 Android 13 主题图标使用。 -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_bg_paper" />
+    <foreground android:drawable="@drawable/ic_launcher_mascot" />
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
+</adaptive-icon>

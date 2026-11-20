@@ -1,0 +1,559 @@
+#!/usr/bin/env python3
+"""i18n consistency checks for the DSH Mobile Android app.
+
+Run locally:  python3 scripts/check-i18n.py
+In CI:        .github/workflows/i18n-check.yml (pull_request + push)
+
+The app ships English as the DEFAULT locale (res/values/strings.xml) and
+translates into German (res/values-de/) and Simplified Chinese
+(res/values-zh-rCN/). The in-app switcher offers exactly these three
+languages, with English as the default (v1.2.120; the old "follow system"
+option was removed). These checks guard that split: no CJK may leak into
+the default locale, into layout literals, or into Kotlin string literals,
+and every locale must stay in sync with the base one.
+
+Exit code 0 = all checks passed.
+"""
+import json
+import os
+import re
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP = os.path.join(ROOT, "app", "src", "main")
+
+BASE_VALUES = os.path.join(APP, "res", "values")
+LOCALE_DIRS = ["values-de", "values-zh-rCN", "values-pt-rBR", "values-th", "values-ru"]
+
+# CJK ideographs, Kangxi/compat, CJK symbols & punctuation, fullwidth forms.
+CJK = re.compile(r"[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef]")
+
+# Android format args: %s %d %1$s %2$d %1$.2f  (%% is an escaped percent, skip it)
+PLACEHOLDER = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[sdf]")
+
+# Kotlin string literals: triple-quoted raw strings first, then normal ones.
+KT_RAW = re.compile(r'"""(.*?)"""', re.S)
+KT_STR = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
+
+# CJK literals that are intentional (zh-locale data kept in the English build).
+ALLOWED_CJK_LITERALS = {
+    # v1.3.0: on-screen text the app must MATCH, not user-facing copy.
+    # PageStateDetector recognises these Chinese loading labels in other apps' UIs.
+    ("PageStateDetector.kt", "加载中"),
+    ("PageStateDetector.kt", "正在加载"),
+    ("PageStateDetector.kt", "载入中"),
+    ("PageStateDetector.kt", "正在载入"),
+    ("PageStateDetector.kt", "请稍候"),
+    ("PageStateDetector.kt", "请稍等"),
+    # Fullwidth '@' substituted in OCR output so it never collides with the
+    # compact token delimiter (same reason the ASCII '@' is replaced).
+    ("ScreenOcr.kt", "o${startIndex + i} ${b.text.replace('@', '＠')} @${b.cx},${b.cy} c"),
+    # Diagnostic summary returned to the agent (not rendered in the UI).
+    ("SceneMemory.kt", "记忆条目 ${entries.size} 条（待确认 $pending 条），累计命中复用 $hits 次"),
+    # Volatile-text filter (v1.7.x): these strings are **on-screen text to MATCH**,
+    # not copy we render. They must stay Chinese because that is literally what the
+    # upstream WebUI prints in the zh locale; translating them would break matching.
+    ("SceneMemory.kt", "预览版"),
+    ("SceneMemory.kt", "标准模式"),
+    ("SceneMemory.kt", "探索未至之境"),
+    ("SceneMemory.kt", "…"),
+    # Number/time/version regexes carry CJK unit suffixes because they parse on-screen
+    # text (个/条/项/次/字, 年月日). Same reason as above: these are patterns, not copy.
+    ("SceneMemory.kt", "^[0-9][0-9,.]*\s*(ms|s|m|h|MB|GB|KB|B|%|个|条|项|次|字)?$"),
+    ("SceneMemory.kt", "(^|\s)([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?($|\s)"),
+    ("SceneMemory.kt", "|[0-9]{4}[-/年][0-9]{1,2}[-/月][0-9]{1,2}|[0-9]{1,2}月[0-9]{1,2}日"),
+    # Toggle-intent word lists (v1.7.x): they identify what an on-screen control
+    # SAYS, so they must stay in the language the UI actually prints.
+    ("MemoryReplay.kt", "打开"),
+    ("MemoryReplay.kt", "开启"),
+    ("MemoryReplay.kt", "启用"),
+    ("MemoryReplay.kt", "开"),
+    ("MemoryReplay.kt", "关闭"),
+    ("MemoryReplay.kt", "停用"),
+    ("MemoryReplay.kt", "禁用"),
+    ("MemoryReplay.kt", "关"),
+    # Provider display names: proper nouns shown identically in every locale.
+    ("CredentialProbe.kt", "DeepSeek 官方"),
+    ("CredentialProbe.kt", "通义千问"),
+    ("CredentialProbe.kt", "智谱 GLM"),
+    # ExtensionStoreActivity maps catalogue categories to accent colours; the
+    # zh catalog still carries Chinese category names, so both are matched.
+    ("ExtensionStoreActivity.kt", "语言运行时"),
+    ("ExtensionStoreActivity.kt", "编译构建"),
+    # AgentContextSeed teaches the agent to recognise UI labels in BOTH languages
+    # (the app ships zh + en). These Chinese strings are intentional examples of
+    # on-screen text the agent must match, not user-facing copy that needs i18n.
+    ("AgentContextSeed.kt", "重启"),
+    ("AgentContextSeed.kt", "允许"),
+    ("AgentContextSeed.kt", "确定"),
+    ("AgentContextSeed.kt", "扩展目录发布失败"),
+    ("AgentContextSeed.kt", "缺失"),
+    ("AgentContextSeed.kt", "构建完成"),
+    ("AgentContextSeed.kt", "设置"),
+}
+
+# Whole files exempt from the Kotlin-literal CJK scan: these embed *bilingual
+# agent instructions* (the seed tells the agent which on-screen labels to match
+# in either language), so Chinese examples inside them are by design.
+ALLOWED_CJK_FILES = {
+    "AgentContextSeed.kt",
+    # v1.5.0-beta.3: DialogCap matches blocking-dialog button labels in *other*
+    # apps (permission prompts, update nags, ad overlays, 青少年模式…). Those
+    # Chinese words are locator data, exactly like PageStateDetector's loading
+    # labels - translating them would break the matching. The rule lists live in
+    # DISMISS_RULES / DANGER_RULES / DIALOG_HINTS and carry their own per-locale
+    # siblings (English/German/Portuguese) so matching still works on any UI.
+    "DialogCap.kt",
+    # v1.5.0-beta.11: EndpointCatalog is the *tool documentation the agent reads*
+    # (returned by GET /dev/help, rendered by the `dev` gate script). Its Chinese
+    # summaries/params/limits are consumed by the model, not shown as UI copy —
+    # same rationale as AgentContextSeed. Translating them would make the agent's
+    # own tool reference worse, not better.
+    "EndpointCatalog.kt",
+    # v1.6.0-beta.3: PeerSync.kt 里没有任何 UI 文案 —— 界面文案全在
+    # PeerSyncActivity.kt 且走 strings.xml（六语言）。这个文件里的中文只有两类：
+    #   1) KDoc/行内注释（解释三方比较、zstd 多帧、密码加密的取舍）；
+    #   2) 内联在 SYNC_SCRIPT 里的 node 源码注释同一批说明。
+    # 两者都是给维护者看的，不是渲染出来的字；同步结果里给模型的字段一律英文。
+    # 因此按 EndpointCatalog 的同一理由跳过字面量扫描。
+    "PeerSync.kt",
+    # v1.6.19: the screen document (GET /screen?format=doc) and its companion
+    # modules produce text the MODEL reads, not UI copy: section headings (顶部/
+    # 中部/底部), the "no label" placeholder, switch states, and the verdict
+    # sentences returned by POST /tap-ref. The agent prompt is Chinese, so these
+    # must stay Chinese in every locale — translating them would make the tool
+    # output unreadable to the model that consumes it.
+    "ScreenDoc.kt",
+    # ScreenBudget assembles the same Chinese screen document; its zone headings
+    # (顶部/中部/底部) and truncation notes are tool output, not UI copy.
+    "ScreenBudget.kt",
+    # ScreenDigest reduces that document; its notes (与 s7 相同 / 只列变化) go to the model.
+    "ScreenDigest.kt",
+    # Handoff talks to the model, not the user: its state sentences are tool output.
+    "Handoff.kt",
+    # v1.6.22: PhoneTask 的停止原因与拒绝文案是 **回给模型的话**，
+    # 与 Handoff.BEGIN_MESSAGE 同类：它们是模型要读的指令，不是界面文案。
+    "PhoneTask.kt",
+    # v1.6.24: PhoneAsk 的提问开场白与界面标题同 PhoneTask，
+    # 都是模型与用户要读的原文，不是可翻译的面包屑。
+    "PhoneAsk.kt",
+    "TaskReport.kt",
+    # v1.6.27: OverlayState 的五态语义写在注释里，
+    # 它是给下一个改这块的人看的，不是界面文案。
+    "OverlayState.kt",
+    "PointMarker.kt",
+    "ScreenVerdict.kt",
+    # ScreenMask is locator/redaction data, exactly like DialogCap: the exclusion
+    # words (订单/单号/物流…) decide whether a digit run IS a card number, and the
+    # tags wrap real Chinese on-screen text. Translating them breaks the match.
+    "ScreenMask.kt",
+    # ProtectedPages carries the same kind of data: title words that identify
+    # permission/settings pages (无障碍/开发者选项/安装未知应用…). Matching only.
+    "ProtectedPages.kt",
+}
+
+errors = []
+notes = []
+
+
+def fail(msg):
+    errors.append(msg)
+
+
+def rel(p):
+    return os.path.relpath(p, ROOT)
+
+
+def kotlin_files():
+    base = os.path.join(APP, "java")
+    for dirpath, _, names in os.walk(base):
+        for n in names:
+            if n.endswith(".kt"):
+                yield os.path.join(dirpath, n)
+
+
+def read(p):
+    with open(p, encoding="utf-8") as f:
+        return f.read()
+
+
+def line_of(text, idx):
+    return text.count("\n", 0, idx) + 1
+
+
+# ---------------------------------------------------------------- A. XML wellformed
+def check_xml():
+    targets = [os.path.join(APP, "AndroidManifest.xml")]
+    for dirpath, _, names in os.walk(os.path.join(APP, "res")):
+        for n in names:
+            if n.endswith(".xml"):
+                targets.append(os.path.join(dirpath, n))
+    for p in targets:
+        try:
+            ET.parse(p)
+        except ET.ParseError as e:
+            fail("XML not well-formed: %s: %s" % (rel(p), e))
+    notes.append("A. XML well-formedness: %d file(s) parsed" % len(targets))
+
+
+# ------------------------------------------------- B. default locale must be English
+def load_strings(values_dir):
+    p = os.path.join(values_dir, "strings.xml")
+    if not os.path.isfile(p):
+        return None
+    root = ET.parse(p).getroot()
+    out = {}
+    for child in root:
+        if child.tag == "string":
+            out[child.get("name")] = child.text or ""
+        elif child.tag == "string-array":
+            out[child.get("name")] = "\n".join(
+                (it.text or "") for it in child
+            )
+    return out
+
+
+def check_duplicate_keys():
+    """Every locale (incl. the default) must not declare a key twice.
+
+    A duplicate crashes aapt at build time ("Found item String/x more than one
+    time") *after* the resource-merge step — usually inside CI, minutes after
+    commit. Parity checks compare sets and therefore stay blind to it, so the
+    guard runs first and names the file plus the offending keys.
+    """
+    for values_dir in [BASE_VALUES] + [
+        os.path.join(APP, "res", d) for d in LOCALE_DIRS
+    ]:
+        p = os.path.join(values_dir, "strings.xml")
+        if not os.path.isfile(p):
+            continue
+        root = ET.parse(p).getroot()
+        seen = {}
+        for child in root:
+            if child.tag not in ("string", "string-array"):
+                continue
+            name = child.get("name")
+            seen[name] = seen.get(name, 0) + 1
+        dups = sorted(n for n, c in seen.items() if c > 1)
+        if dups:
+            fail("duplicate string key(s) in %s: %s" % (rel(p), ", ".join(dups)))
+    notes.append("A2. Duplicate string keys: none found in %d locale file(s)"
+                 % (1 + len(LOCALE_DIRS)))
+
+
+# Language names are shown in each language's OWN writing (endonym) in every
+# locale, so the switcher is readable no matter which UI language is active:
+# a Chinese speaker always recognises 中文, a German speaker Deutsch. Those
+# endonyms are therefore data, not translation, and the CJK guard must let
+# them through in the English default locale too.
+ALLOWED_CJK_BASE_STRINGS = {
+    "lang_zh": "中文",
+}
+
+# 语言名必须恒为该语言自己的写法，与当前 UI 语言无关。任何 locale 里把
+# lang_de 译成「德语」、把 lang_th 译成「泰语」，用户就分不清哪一行是自己
+# 的语言（v1.4.76 葡语、2026-11-01 泰语两次踩过同一个坑），所以这里硬锁。
+ENDONYM_LANG_NAMES = {
+    "lang_zh": "中文",
+    "lang_en": "English",
+    "lang_de": "Deutsch",
+    "lang_pt": "Português",
+    "lang_th": "ไทย",
+    "lang_ru": "Русский",
+}
+
+
+def check_lang_endonyms():
+    base = load_strings(BASE_VALUES)
+    if base is None:
+        return
+    dirs = [BASE_VALUES] + [os.path.join(APP, "res", d) for d in LOCALE_DIRS]
+    for d in dirs:
+        if not os.path.isdir(d):
+            continue
+        locs = load_strings(d)
+        if locs is None:
+            continue
+        for name, want in sorted(ENDONYM_LANG_NAMES.items()):
+            got = locs.get(name)
+            if got is None:
+                continue
+            if got != want:
+                fail("%s/strings.xml '%s' must stay the endonym %r, got %r"
+                     % (os.path.basename(d), name, want, got))
+    notes.append("B2. Language endonyms: %d names locked across %d locale(s)"
+                 % (len(ENDONYM_LANG_NAMES), len([d for d in dirs if os.path.isdir(d)])))
+
+
+def check_base_locale_english():
+    base = load_strings(BASE_VALUES)
+    if base is None:
+        fail("missing %s" % rel(os.path.join(BASE_VALUES, "strings.xml")))
+        return
+    for name, val in sorted(base.items()):
+        if CJK.search(val):
+            if ALLOWED_CJK_BASE_STRINGS.get(name) == val:
+                continue
+            fail("CJK in default-locale string '%s': %r" % (name, val))
+    notes.append("B. Default locale free of CJK: %d string(s) checked" % len(base))
+
+
+# ------------------------------------------ C. layout literals must not hardcode CJK
+LAYOUT_ATTRS = ("text", "hint", "contentDescription")
+ATTR_RE = re.compile(
+    r'android:(?:text|hint|contentDescription)\s*=\s*"([^"]*)"'
+)
+
+
+def check_layouts():
+    n = 0
+    layout_dir = os.path.join(APP, "res", "layout")
+    for dirpath, _, names in os.walk(layout_dir):
+        for name in sorted(names):
+            if not name.endswith(".xml"):
+                continue
+            p = os.path.join(dirpath, name)
+            for m in ATTR_RE.finditer(read(p)):
+                val = m.group(1)
+                if not val or val.startswith("@"):
+                    continue
+                n += 1
+                if CJK.search(val):
+                    fail("CJK hardcoded in layout %s: android:text=\"%s\""
+                         % (rel(p), val))
+    notes.append("C. Layout literals: %d hardcoded android:text/hint checked" % n)
+
+
+def strip_kotlin_comments(src):
+    """Blank out comment bodies (newlines preserved) so literal scanning skips them.
+
+    A naive regex would flag CJK that merely appears inside a comment between
+    quotes, e.g. KDoc like `点"重启"按钮`. Only real literals matter here.
+    """
+    out = list(src)
+    i, n = 0, len(src)
+    state = None  # None | 'line' | 'block' | 'str' | 'raw' | 'char'
+    # Kotlin 的块注释**可以嵌套**：`/* a /* b */ c */` 整段都是注释。
+    # 原版遇到第一个 `*/` 就退出，会把 `c */` 当成代码继续扫 —— 于是注释里
+    # 的引用/中文会被误判成真实代码。这里用深度计数。
+    depth = 0
+    while i < n:
+        c = src[i]
+        nxt = src[i + 1] if i + 1 < n else ""
+        if state is None:
+            if c == "/" and nxt == "/":
+                state = "line"
+                out[i] = out[i + 1] = " "
+                i += 2
+                continue
+            if c == "/" and nxt == "*":
+                state = "block"
+                depth = 1
+                out[i] = out[i + 1] = " "
+                i += 2
+                continue
+            if src.startswith('"""', i):
+                state = "raw"
+                i += 3
+                continue
+            if c == '"':
+                state = "str"
+                i += 1
+                continue
+            if c == "'":
+                state = "char"
+                i += 1
+                continue
+            i += 1
+        elif state == "line":
+            if c == "\n":
+                state = None
+            else:
+                out[i] = " "
+            i += 1
+        elif state == "block":
+            if c == "/" and nxt == "*":
+                depth += 1
+                out[i] = out[i + 1] = " "
+                i += 2
+                continue
+            if c == "*" and nxt == "/":
+                depth -= 1
+                out[i] = out[i + 1] = " "
+                if depth <= 0:
+                    state = None
+                    depth = 0
+                i += 2
+                continue
+            if c != "\n":
+                out[i] = " "
+            i += 1
+        elif state == "raw":
+            if src.startswith('"""', i):
+                state = None
+                i += 3
+                continue
+            i += 1
+        elif state == "str":
+            if c == "\\":
+                i += 2
+                continue
+            if c == '"':
+                state = None
+            i += 1
+        elif state == "char":
+            if c == "\\":
+                i += 2
+                continue
+            if c == "'":
+                state = None
+            i += 1
+    return "".join(out)
+
+
+# ------------------------------------------ D. Kotlin string literals must be English
+def check_kotlin_literals():
+    n = 0
+    for p in sorted(kotlin_files()):
+        src = read(p)
+        code = strip_kotlin_comments(src)
+        base = os.path.basename(p)
+        if base in ALLOWED_CJK_FILES:
+            # Bilingual agent instructions (see ALLOWED_CJK_FILES) - skip literal scan.
+            continue
+        spans = [(m.start(), m.end(), m.group(1)) for m in KT_RAW.finditer(code)]
+        covered = [(s, e) for s, e, _ in spans]
+        for m in KT_STR.finditer(code):
+            if any(s <= m.start() < e for s, e in covered):
+                continue
+            spans.append((m.start(), m.end(), m.group(1)))
+        for start, _end, body in spans:
+            if not CJK.search(body):
+                continue
+            ln = line_of(src, start)
+            if (base, body) in ALLOWED_CJK_LITERALS:
+                continue
+            n += 1
+            fail("CJK in Kotlin string literal %s:%d: %r"
+                 % (rel(p), ln, body[:60]))
+    notes.append("D. Kotlin literals: %d CJK literal(s) remaining (excluding %d allowed)"
+                 % (n, len(ALLOWED_CJK_LITERALS)))
+
+
+# ------------------------------------- E/F. locale parity + placeholder parity
+def check_locale_parity():
+    base = load_strings(BASE_VALUES)
+    if base is None:
+        return
+    for loc in LOCALE_DIRS:
+        loc_dir = os.path.join(APP, "res", loc)
+        if not os.path.isdir(loc_dir):
+            continue
+        locs = load_strings(loc_dir)
+        if locs is None:
+            continue
+        for name in sorted(set(base) - set(locs)):
+            fail("'%s' missing from %s/strings.xml" % (name, loc))
+        for name in sorted(set(locs) - set(base)):
+            fail("'%s' only in %s/strings.xml, not in the default locale"
+                 % (name, loc))
+        for name in sorted(set(base) & set(locs)):
+            a = sorted(PLACEHOLDER.findall(base[name]))
+            b = sorted(PLACEHOLDER.findall(locs[name]))
+            if a != b:
+                fail("placeholder mismatch for '%s' (%s): default=%s locale=%s"
+                     % (name, loc, a, b))
+        notes.append("E/F. Locale parity %s: %d string(s) in sync" % (loc, len(locs)))
+
+
+# ------------------------------------------- G. every R.string.* reference resolves
+R_STR = re.compile(r'(?<!android\.)\bR\.string\.([A-Za-z0-9_]+)')
+
+
+def check_string_refs():
+    base = load_strings(BASE_VALUES) or {}
+    refs = {}
+    for p in sorted(kotlin_files()):
+        # 必须剥注释：注释里写 `R.string.xxx_*` 会被当成真实引用报假阳性。
+        for m in R_STR.finditer(strip_kotlin_comments(read(p))):
+            refs.setdefault(m.group(1), set()).add(rel(p))
+    for name in sorted(set(refs) - set(base)):
+        fail("R.string.%s referenced but not defined (used in %s)"
+             % (name, ", ".join(sorted(refs[name]))))
+    unused = sorted(set(base) - set(refs))
+    notes.append("G. R.string references: %d reference(s), %d defined, %d unused"
+                 % (len(refs), len(base), len(unused)))
+    if unused:
+        notes.append("   (unused, may be referenced from XML only: %s)"
+                     % ", ".join(unused))
+
+
+# ----------------------------------------------- H. catalogue assets stay in sync
+def check_catalogs():
+    ext = os.path.join(APP, "assets", "extensions")
+    base_p = os.path.join(ext, "catalog.json")
+    if not os.path.isfile(base_p):
+        return
+    try:
+        base = json.loads(read(base_p))
+    except ValueError as e:
+        fail("catalog.json is not valid JSON: %s" % e)
+        return
+    base_ids = [i["id"] for i in base["items"]]
+    notes.append("H. Catalog: %d extension(s), categories: %s"
+                 % (len(base_ids),
+                    ", ".join(sorted({i.get("category", "?") for i in base["items"]}))))
+    for name in sorted(os.listdir(ext)):
+        if not name.endswith(".json") or name == "catalog.json":
+            continue
+        try:
+            other = json.loads(read(os.path.join(ext, name)))
+        except ValueError as e:
+            fail("%s is not valid JSON: %s" % (name, e))
+            continue
+        other_ids = [i["id"] for i in other["items"]]
+        if other_ids != base_ids:
+            fail("%s item ids/order differ from catalog.json: %s vs %s"
+                 % (name, other_ids, base_ids))
+        if other.get("mirrors") != base.get("mirrors"):
+            fail("%s mirrors differ from catalog.json" % name)
+    # runtime manifest is generated at build time; validate the schema template instead.
+    man = os.path.join(APP, "assets", "runtime", "MANIFEST.json")
+    template = os.path.join(ROOT, "scripts", "runtime-manifest.template.json")
+    target = man if os.path.isfile(man) else template
+    if os.path.isfile(target):
+        try:
+            m = json.loads(read(target))
+            for k in ("schema", "package", "abi", "runtime", "updates"):
+                if k not in m:
+                    fail("%s missing key '%s'" % (os.path.basename(target), k))
+        except ValueError as e:
+            fail("%s is not valid JSON: %s" % (os.path.basename(target), e))
+
+
+def main():
+    check_xml()
+    check_duplicate_keys()
+    check_base_locale_english()
+    check_lang_endonyms()
+    check_layouts()
+    check_kotlin_literals()
+    check_locale_parity()
+    check_string_refs()
+    check_catalogs()
+
+    print("== dsh-mobile i18n check ==")
+    for n in notes:
+        print("  " + n)
+    if errors:
+        print("\nFAILED (%d):" % len(errors))
+        for e in errors:
+            print("  ::error::" + e)
+        return 1
+    print("\nAll i18n checks passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
