@@ -87,6 +87,12 @@ def collect(root: Path) -> dict[str, Path]:
     for n in sorted((root / "build-scripts").iterdir()):
         if n.is_file() and n.suffix in {".py", ".ps1"} and not n.name.startswith("_"):
             files["tools/" + n.name] = n
+    # The Android link() fallback ships with its own regression test.
+    fb = root / "optimization-overlay" / "link-fallback"
+    if fb.is_dir():
+        for n in sorted(fb.iterdir()):
+            if n.is_file():
+                files["tools/link-fallback/" + n.name] = n
     for extra, rel in (("runtime-derived-v16b/runtime-meta.json", "docs/runtime-meta.json"),
                        ("deliverables/验证报告-0.2.2.zh.md", "docs/验证报告-0.2.2.zh.md"),
                        ("deliverables/验证报告-0.2.3.zh.md", "docs/验证报告-0.2.3.zh.md")):
