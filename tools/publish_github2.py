@@ -87,8 +87,9 @@ def collect(root: Path) -> dict[str, Path]:
     for n in sorted((root / "build-scripts").iterdir()):
         if n.is_file() and n.suffix in {".py", ".ps1"} and not n.name.startswith("_"):
             files["tools/" + n.name] = n
-    for extra, rel in (("runtime-derived-v16/runtime-meta.json", "docs/runtime-meta.json"),
-                       ("deliverables/验证报告-0.2.2.zh.md", "docs/验证报告-0.2.2.zh.md")):
+    for extra, rel in (("runtime-derived-v16b/runtime-meta.json", "docs/runtime-meta.json"),
+                       ("deliverables/验证报告-0.2.2.zh.md", "docs/验证报告-0.2.2.zh.md"),
+                       ("deliverables/验证报告-0.2.3.zh.md", "docs/验证报告-0.2.3.zh.md")):
         p = root / extra
         if p.is_file():
             files[rel] = p
@@ -182,7 +183,7 @@ def main() -> int:
         time.sleep(args.pace)
 
     st, commit = with_backoff(lambda: request("POST", f"/repos/{owner}/{repo}/git/commits", token, {
-        "message": "Harness Pocket 0.2.2: engine 0.2.2-rc.3, island retired, new icon",
+        "message": "Harness Pocket 0.2.3: fix EACCES on session publish (Android link denial)",
         "tree": tree_sha,
         "parents": [parent],
     }))

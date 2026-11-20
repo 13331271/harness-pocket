@@ -8,6 +8,8 @@ import argparse
 import copy
 import hashlib
 import json
+import os
+import sys
 from pathlib import Path
 import time
 import zipfile
@@ -60,11 +62,11 @@ def main():
             if any(value in lower for value in ("dsh_alpine", "framesrv")):
                 raise ValueError("Restricted container payload in runtime")
         jsonl = source.read(JSONL).decode("utf-8")
-        old = 'import { rename as link, lstat, mkdir, mkdtemp, open, readFile, readdir, realpath, rm, stat, truncate } from "node:fs/promises";'
-        new = 'import { link, lstat, mkdir, mkdtemp, open, readFile, readdir, realpath, rm, stat, truncate } from "node:fs/promises";'
-        if jsonl.count(old) != 1:
-            raise ValueError("JSONL no-clobber restoration anchor changed")
-        changes[JSONL] = jsonl.replace(old, new).encode("utf-8")
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from patch_jsonl_link_android import patch as patch_jsonl
+        # Real kernel link() for no-clobber publication, plus an Android
+        # fallback: SELinux denies link(2) in app data dirs (EACCES).
+        changes[JSONL] = patch_jsonl(jsonl).encode("utf-8")
         build = json.loads(source.read("BUILD.json"))
         if build["engineVersion"] != args.expect_engine or build["abi"] != "arm64-v8a":
             raise ValueError("Unexpected engine or target ABI")
@@ -103,8 +105,11 @@ def main():
         if result.testzip() is not None:
             raise ValueError("Derived ZIP CRC failed")
         unpacked = sum(entry.file_size for entry in result.infolist())
-        if b"rename as link" in result.read(JSONL) or b"void fd" in result.read(FLOCK):
+        patched_jsonl = result.read(JSONL)
+        if b"rename as link" in patched_jsonl or b"void fd" in result.read(FLOCK):
             raise ValueError("Unsafe compatibility stubs remain")
+        if b"publishNoClobber" not in patched_jsonl:
+            raise ValueError("Android link() fallback missing from the derived runtime")
     with args.output.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     metadata = {"version": build["version"], "abi": build["abi"],

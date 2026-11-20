@@ -21,7 +21,8 @@ TOP_FILES = [
     "optimization-overlay/apk-audit/README.md",
 ]
 SOURCE_DIRS = ["app-source/app/src", "app-source/vendor/mobile-layout", "native-flock/include",
-               "build-scripts", "optimization-overlay/pty-fix"]
+               "build-scripts", "optimization-overlay/pty-fix",
+               "optimization-overlay/link-fallback"]
 EXCLUDED_PARTS = {"build", ".gradle", ".git", "__pycache__", "temp", "tmp", "test-tmp", "fixtures-tmp"}
 FORBIDDEN_PATTERNS = ["*dsh_alpine*", "*framesrv*", "*.keystore", "*.jks", "*.p12", "*.pfx",
                       "*signing-secret*", "*.env", "local.properties"]
