@@ -1912,4 +1912,27 @@
     <string name="setting_engine_sub_not_running">ไม่ได้ทำงาน — แตะเพื่อดูรายละเอียด</string>
     <string name="setting_sessions">เซสชัน</string>
     <string name="setting_sessions_sub">ตรวจและลบบทสนทนาทีละรายการ</string>
+    <string name="setting_kernel">อัปเกรดเคอร์เนล</string>
+    <string name="setting_kernel_sub">อัปเกรดเอนจิน DSH ในเครื่อง</string>
+    <string name="kernel_title">อัปเกรดเคอร์เนล</string>
+    <string name="kernel_current">ปัจจุบัน</string>
+    <string name="kernel_current_value">ติดตั้งแล้ว %1$s · ในตัว %2$s</string>
+    <string name="kernel_available">มีใน npm</string>
+    <string name="kernel_available_value">latest %1$s · next %2$s</string>
+    <string name="kernel_reading">กำลังอ่าน…</string>
+    <string name="kernel_checking">กำลังตรวจ npm…</string>
+    <string name="kernel_registry_failed">เข้าถึง npm ไม่ได้</string>
+    <string name="kernel_channel_latest">เสถียร (latest)</string>
+    <string name="kernel_channel_next">ตัวอย่าง (next)</string>
+    <string name="kernel_check">ตรวจอีกครั้ง</string>
+    <string name="kernel_upgrade">อัปเกรด</string>
+    <string name="kernel_upgrading">กำลังอัปเกรด…</string>
+    <string name="kernel_confirm_title">อัปเกรดเอนจิน?</string>
+    <string name="kernel_confirm_msg">%1$s → %2$s
+
+เอนจินจะหยุด ติดตั้งแพ็กเกจใหม่บนเครื่อง แล้วเริ่มใหม่ แพตช์จะถูกคืนค่า หากล้มเหลวจะย้อนกลับ</string>
+    <string name="kernel_confirm_ok">อัปเกรด</string>
+    <string name="kernel_warning">ใช้ npm ของรันไทม์ ต้องมีเน็ต ใช้เวลา 2–8 นาที กรุณาเปิดแอปค้างไว้</string>
+    <string name="kernel_done">อัปเกรดเสร็จ เอนจินเริ่มใหม่แล้ว</string>
+    <string name="kernel_failed">อัปเกรดล้มเหลว — ย้อนกลับแล้ว</string>
 </resources>

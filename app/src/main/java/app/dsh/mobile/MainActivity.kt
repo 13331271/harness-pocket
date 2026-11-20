@@ -1388,7 +1388,8 @@ runCatching { (application as DshApp).supervisor.webUrl() }
         row.visibility = View.GONE
         handle.visibility = View.GONE
         sideHost?.visibility = View.GONE
-        installSettingsEntry()
+        // v0.2.6：设置入口改为注入到侧栏「更多」行内部（见 assets/js/settings-entry.js），
+        // 不再生成任何悬浮按钮 —— 上一版固定定位的圆钮会压住侧栏边界。
         return
         @Suppress("UNREACHABLE_CODE")
         val side = islandDock != IslandDock.TOP

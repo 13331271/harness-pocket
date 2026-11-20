@@ -1962,4 +1962,27 @@
     <string name="setting_engine_sub_not_running">Не запущен — нажмите для подробностей</string>
     <string name="setting_sessions">Сеансы</string>
     <string name="setting_sessions_sub">Просмотр и удаление отдельных диалогов</string>
+    <string name="setting_kernel">Обновление ядра</string>
+    <string name="setting_kernel_sub">Обновить встроенный движок DSH на телефоне</string>
+    <string name="kernel_title">Обновление ядра</string>
+    <string name="kernel_current">Текущая</string>
+    <string name="kernel_current_value">установлено %1$s · встроено %2$s</string>
+    <string name="kernel_available">Доступно в npm</string>
+    <string name="kernel_available_value">latest %1$s · next %2$s</string>
+    <string name="kernel_reading">Чтение…</string>
+    <string name="kernel_checking">Проверка npm…</string>
+    <string name="kernel_registry_failed">Нет доступа к registry npm</string>
+    <string name="kernel_channel_latest">Стабильная (latest)</string>
+    <string name="kernel_channel_next">Предпросмотр (next)</string>
+    <string name="kernel_check">Проверить снова</string>
+    <string name="kernel_upgrade">Обновить</string>
+    <string name="kernel_upgrading">Обновление…</string>
+    <string name="kernel_confirm_title">Обновить движок?</string>
+    <string name="kernel_confirm_msg">%1$s → %2$s
+
+Движок остановится, пакеты переустановятся на телефоне, затем он запустится снова. Патчи восстанавливаются, при ошибке — откат.</string>
+    <string name="kernel_confirm_ok">Обновить</string>
+    <string name="kernel_warning">Использует npm из рантайма. Нужна сеть, 2–8 минут. Держите приложение на переднем плане.</string>
+    <string name="kernel_done">Обновление завершено, движок перезапущен</string>
+    <string name="kernel_failed">Обновление не удалось — откат выполнен</string>
 </resources>

@@ -350,6 +350,10 @@ class SettingsActivity : ThemedActivity() {
         findViewById<LinearLayout>(R.id.rowSessions).setOnClickListener {
             startActivity(Intent(this, WipeChatsActivity::class.java))
         }
+        // v0.2.6：内核升级（设备端 npm，自带备份与回滚）
+        findViewById<LinearLayout>(R.id.rowKernel).setOnClickListener {
+            startActivity(Intent(this, KernelUpgradeActivity::class.java))
+        }
         refreshEngineRow()
 
         // —— 其他：语言 Language（v1.2.120：en/de/zh 三选一，默认 en）——

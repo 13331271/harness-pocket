@@ -1962,4 +1962,27 @@
     <string name="setting_engine_sub_not_running">Not running — tap for details</string>
     <string name="setting_sessions">Sessions</string>
     <string name="setting_sessions_sub">Review and delete individual conversations</string>
+    <string name="setting_kernel">Kernel upgrade</string>
+    <string name="setting_kernel_sub">Upgrade the bundled DSH engine on the phone</string>
+    <string name="kernel_title">Kernel upgrade</string>
+    <string name="kernel_current">Current</string>
+    <string name="kernel_current_value">installed %1$s · bundled %2$s</string>
+    <string name="kernel_available">Available on npm</string>
+    <string name="kernel_available_value">latest %1$s · next %2$s</string>
+    <string name="kernel_reading">Reading…</string>
+    <string name="kernel_checking">Checking npm…</string>
+    <string name="kernel_registry_failed">Cannot reach npm registry</string>
+    <string name="kernel_channel_latest">Stable (latest)</string>
+    <string name="kernel_channel_next">Preview (next)</string>
+    <string name="kernel_check">Check again</string>
+    <string name="kernel_upgrade">Upgrade</string>
+    <string name="kernel_upgrading">Upgrading — do not close</string>
+    <string name="kernel_confirm_title">Upgrade engine?</string>
+    <string name="kernel_confirm_msg">%1$s → %2$s
+
+The engine will stop, packages will be reinstalled on this phone, then the engine restarts. Patches are restored afterwards; on failure it rolls back.</string>
+    <string name="kernel_confirm_ok">Upgrade</string>
+    <string name="kernel_warning">Uses the runtime\'s own npm. Needs network; takes 2–8 minutes. Keep the app in the foreground; the engine restarts when done.</string>
+    <string name="kernel_done">Upgrade finished, engine restarted</string>
+    <string name="kernel_failed">Upgrade failed — rolled back</string>
 </resources>

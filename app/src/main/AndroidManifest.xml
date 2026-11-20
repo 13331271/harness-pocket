@@ -1487,6 +1487,12 @@
             android:configChanges="orientation|screenSize|keyboardHidden" />
 
         <activity
+            android:name=".KernelUpgradeActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <activity
             android:name=".RemoteHostActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"

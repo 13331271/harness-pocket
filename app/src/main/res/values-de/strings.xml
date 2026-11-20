@@ -1968,4 +1968,27 @@
     <string name="setting_engine_sub_not_running">Läuft nicht – tippen für Details</string>
     <string name="setting_sessions">Sitzungen</string>
     <string name="setting_sessions_sub">Unterhaltungen einzeln prüfen und löschen</string>
+    <string name="setting_kernel">Kernel-Aktualisierung</string>
+    <string name="setting_kernel_sub">Den eingebauten DSH-Motor auf dem Gerät aktualisieren</string>
+    <string name="kernel_title">Kernel-Aktualisierung</string>
+    <string name="kernel_current">Aktuell</string>
+    <string name="kernel_current_value">installiert %1$s · mitgeliefert %2$s</string>
+    <string name="kernel_available">Auf npm verfügbar</string>
+    <string name="kernel_available_value">latest %1$s · next %2$s</string>
+    <string name="kernel_reading">Wird gelesen…</string>
+    <string name="kernel_checking">npm wird geprüft…</string>
+    <string name="kernel_registry_failed">npm-Registry nicht erreichbar</string>
+    <string name="kernel_channel_latest">Stabil (latest)</string>
+    <string name="kernel_channel_next">Vorschau (next)</string>
+    <string name="kernel_check">Erneut prüfen</string>
+    <string name="kernel_upgrade">Aktualisieren</string>
+    <string name="kernel_upgrading">Aktualisierung läuft</string>
+    <string name="kernel_confirm_title">Motor aktualisieren?</string>
+    <string name="kernel_confirm_msg">%1$s → %2$s
+
+Der Motor stoppt, Pakete werden neu installiert, danach startet er neu; Patches werden wiederhergestellt, bei Fehlern wird zurückgerollt.</string>
+    <string name="kernel_confirm_ok">Aktualisieren</string>
+    <string name="kernel_warning">Nutzt das npm der Laufzeit. Netz nötig, 2–8 Minuten. App im Vordergrund lassen.</string>
+    <string name="kernel_done">Aktualisierung fertig, Motor neu gestartet</string>
+    <string name="kernel_failed">Aktualisierung fehlgeschlagen — zurückgerollt</string>
 </resources>

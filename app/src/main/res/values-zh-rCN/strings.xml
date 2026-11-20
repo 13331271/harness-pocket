@@ -1965,4 +1965,27 @@
     <string name="setting_engine_sub_not_running">未运行，点此看详情</string>
     <string name="setting_sessions">会话管理</string>
     <string name="setting_sessions_sub">逐个查看并删除对话（删除进回收站）</string>
+    <string name="setting_kernel">内核升级</string>
+    <string name="setting_kernel_sub">在手机上升级内置 DSH 引擎（npm，失败回滚）</string>
+    <string name="kernel_title">内核升级</string>
+    <string name="kernel_current">当前</string>
+    <string name="kernel_current_value">已安装 %1$s · 内置 %2$s</string>
+    <string name="kernel_available">npm 上可用</string>
+    <string name="kernel_available_value">latest %1$s · next %2$s</string>
+    <string name="kernel_reading">读取中…</string>
+    <string name="kernel_checking">正在检查 npm…</string>
+    <string name="kernel_registry_failed">无法访问 npm registry</string>
+    <string name="kernel_channel_latest">稳定版（latest）</string>
+    <string name="kernel_channel_next">预览版（next）</string>
+    <string name="kernel_check">重新检查</string>
+    <string name="kernel_upgrade">一键升级</string>
+    <string name="kernel_upgrading">升级中，请勿退出</string>
+    <string name="kernel_confirm_title">确认升级引擎？</string>
+    <string name="kernel_confirm_msg">%1$s → %2$s
+
+会先停引擎，在手机上重新安装依赖，然后重启引擎；补丁会自动还原，失败则回滚。</string>
+    <string name="kernel_confirm_ok">升级</string>
+    <string name="kernel_warning">使用运行时自带的 npm，需要联网，通常 2–8 分钟。请保持应用在前台，完成后引擎会自动重启。</string>
+    <string name="kernel_done">升级完成，引擎已重启</string>
+    <string name="kernel_failed">升级失败，已回滚</string>
 </resources>

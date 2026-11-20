@@ -1,11 +1,12 @@
 {
   "app": "Harness Pocket",
-  "appVersion": "0.2.5-local",
-  "versionCode": 7,
+  "appVersion": "0.2.6-local",
+  "versionCode": 8,
   "bundledEngine": "0.2.2-rc.3",
   "runtimePackage": "2026.11.18-pocket-31fdfc33",
   "runtimeSha256": "df5894a21f548f1aa28e18dc95be9202dca0bf3775f64b502895bc2b1721c19c",
   "upstreamRuntime": "v1.6.0-beta.19",
   "onlineUpdate": true,
-  "settingsEntry": "injected into the sidebar 'more' row (DOM-anchored); native bottom-right gear is a fallback"
+  "kernelUpgrade": "in-app npm upgrade with patch backup and rollback (device only)",
+  "settingsEntry": "injected inside the sidebar 'more' row; no floating button"
 }

@@ -1922,4 +1922,27 @@
     <string name="setting_engine_sub_not_running">Não está rodando — toque para detalhes</string>
     <string name="setting_sessions">Sessões</string>
     <string name="setting_sessions_sub">Revisar e excluir conversas individuais</string>
+    <string name="setting_kernel">Atualização do núcleo</string>
+    <string name="setting_kernel_sub">Atualizar o motor DSH no celular</string>
+    <string name="kernel_title">Atualização do núcleo</string>
+    <string name="kernel_current">Atual</string>
+    <string name="kernel_current_value">instalado %1$s · embutido %2$s</string>
+    <string name="kernel_available">Disponível no npm</string>
+    <string name="kernel_available_value">latest %1$s · next %2$s</string>
+    <string name="kernel_reading">Lendo…</string>
+    <string name="kernel_checking">Verificando o npm…</string>
+    <string name="kernel_registry_failed">Não foi possível acessar o npm</string>
+    <string name="kernel_channel_latest">Estável (latest)</string>
+    <string name="kernel_channel_next">Prévia (next)</string>
+    <string name="kernel_check">Verificar de novo</string>
+    <string name="kernel_upgrade">Atualizar</string>
+    <string name="kernel_upgrading">Atualizando…</string>
+    <string name="kernel_confirm_title">Atualizar o motor?</string>
+    <string name="kernel_confirm_msg">%1$s → %2$s
+
+O motor para, os pacotes são reinstalados no celular e ele reinicia. Os patches são restaurados; em caso de falha há rollback.</string>
+    <string name="kernel_confirm_ok">Atualizar</string>
+    <string name="kernel_warning">Usa o npm do runtime. Precisa de rede; 2–8 minutos. Mantenha o app em primeiro plano.</string>
+    <string name="kernel_done">Atualização concluída, motor reiniciado</string>
+    <string name="kernel_failed">Falha na atualização — revertido</string>
 </resources>
