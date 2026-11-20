@@ -1314,23 +1314,24 @@ runCatching { (application as DshApp).supervisor.webUrl() }
                 startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
             }
         }
+        // v0.2.4（用户要求）：入口从右上移到右下角（贴近拇指区），跟随导航栏 insets 上移。
         val lp = android.widget.FrameLayout.LayoutParams(size, size).apply {
-            gravity = android.view.Gravity.TOP or android.view.Gravity.END
-            topMargin = (8 * d).toInt()
+            gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
+            bottomMargin = (8 * d).toInt()
             marginEnd = (8 * d).toInt()
         }
         container.addView(button, lp)
         button.setOnApplyWindowInsetsListener { view, insets ->
-            val statusTop = if (android.os.Build.VERSION.SDK_INT >= 30) {
-                insets.getInsets(android.view.WindowInsets.Type.statusBars()).top
+            val navBottom = if (android.os.Build.VERSION.SDK_INT >= 30) {
+                insets.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom
             } else {
                 @Suppress("DEPRECATION")
-                insets.systemWindowInsetTop
+                insets.systemWindowInsetBottom
             }
-            val margin = statusTop + (8 * d).toInt()
+            val margin = navBottom + (8 * d).toInt()
             (view.layoutParams as? android.widget.FrameLayout.LayoutParams)?.let {
-                if (it.topMargin != margin) {
-                    it.topMargin = margin
+                if (it.bottomMargin != margin) {
+                    it.bottomMargin = margin
                     view.layoutParams = it
                 }
             }

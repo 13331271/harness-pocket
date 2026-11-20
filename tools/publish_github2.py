@@ -189,7 +189,7 @@ def main() -> int:
         time.sleep(args.pace)
 
     st, commit = with_backoff(lambda: request("POST", f"/repos/{owner}/{repo}/git/commits", token, {
-        "message": "Harness Pocket 0.2.3: fix EACCES on session publish (Android link denial)",
+        "message": "Harness Pocket 0.2.4: settings entry bottom-right, online update enabled",
         "tree": tree_sha,
         "parents": [parent],
     }))

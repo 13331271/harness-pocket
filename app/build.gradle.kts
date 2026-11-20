@@ -249,6 +249,8 @@ android {
         applicationId = "app.harness.pocket"
         buildConfigField("boolean", "POCKET_NATIVE_ONLY", "true")
         buildConfigField("boolean", "POCKET_LOCAL_DISTRIBUTION", "true")
+        // v0.2.4：在线更新与应用内检查独立开关；引擎/运行时仍按 POCKET_LOCAL_DISTRIBUTION 走手动策略。
+        buildConfigField("boolean", "POCKET_ONLINE_UPDATE", "true")
         minSdk = 26
         // 关键决策：targetSdk 28 —— sideload 分发，豁免 Android 10+ 的 W^X 限制，
         // 允许从 filesDir 直接 execve bionic 二进制（Termux 同款策略）。
@@ -298,13 +300,13 @@ android {
         // 部署期（ensureXkbOutputDir）+ 运行期（startFrameServer）各补一次
         // mkdir，失败回显带 xkb 目录状态。
         // versionCode 继续单调递增：375 → … → 390 → 391 → 392。
-        versionCode = 5
+        versionCode = 6
         // v1.5.0 起进入 1.5 系列：设备能力（蓝牙报文/WiFi 底层/定时提醒）+ AI 开关 UI。
         // versionName 允许带后缀（Android 不校验格式）。v1.5.0 起 CI 支持两种 tag 形态
         // （见 android-build.yml:68-86）：v1.5.0（正式版，prerelease: false）与
         // v1.5.0-beta.2（试发行，prerelease: true），但 tag 必须与 versionName 完全拼得上
         // （publish-release 的 `test "$GITHUB_REF_NAME" = "v$V"`），所以打 tag 前先确认这里。
-        versionName = "0.2.3-local"
+        versionName = "0.2.4-local"
 
         ndk {
             abiFilters += listOf(targetAbi)

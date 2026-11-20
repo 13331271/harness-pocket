@@ -1,10 +1,11 @@
 {
   "app": "Harness Pocket",
-  "appVersion": "0.2.3-local",
-  "versionCode": 5,
+  "appVersion": "0.2.4-local",
+  "versionCode": 6,
   "bundledEngine": "0.2.2-rc.3",
   "runtimePackage": "2026.11.18-pocket-31fdfc33",
   "runtimeSha256": "df5894a21f548f1aa28e18dc95be9202dca0bf3775f64b502895bc2b1721c19c",
   "upstreamRuntime": "v1.6.0-beta.19",
-  "note": "Android SELinux denies link(2) in app data dirs; session publication falls back to an atomic rename while keeping no-clobber semantics."
+  "onlineUpdate": true,
+  "note": "App self-update is enabled and reads update-index.json from the latest GitHub Release of this repository."
 }

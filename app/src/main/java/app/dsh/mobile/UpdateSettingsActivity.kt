@@ -75,7 +75,7 @@ class UpdateSettingsActivity : ThemedActivity() {
     private fun bindUpdateSection() {
         val swAuto = findViewById<MaterialSwitch>(R.id.swUpdateAutoCheck)
         swAuto.isChecked = AppUpdatePrefs.autoCheck(this)
-        swAuto.isEnabled = !BuildConfig.POCKET_LOCAL_DISTRIBUTION
+        swAuto.isEnabled = BuildConfig.POCKET_ONLINE_UPDATE
         swAuto.setOnCheckedChangeListener { _, checked -> AppUpdatePrefs.setAutoCheck(this, checked) }
 
         val swWifi = findViewById<MaterialSwitch>(R.id.swUpdateWifiOnly)

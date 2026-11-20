@@ -47,9 +47,9 @@ object AppUpdatePrefs {
 
     /** 自动检查更新（关掉后只在关于页/设置页手动检查）。 */
     fun autoCheck(ctx: Context): Boolean =
-        !app.dsh.mobile.BuildConfig.POCKET_LOCAL_DISTRIBUTION && p(ctx).getBoolean(KEY_AUTO_CHECK, true)
+        app.dsh.mobile.BuildConfig.POCKET_ONLINE_UPDATE && p(ctx).getBoolean(KEY_AUTO_CHECK, true)
     fun setAutoCheck(ctx: Context, on: Boolean) = p(ctx).edit()
-        .putBoolean(KEY_AUTO_CHECK, on && !app.dsh.mobile.BuildConfig.POCKET_LOCAL_DISTRIBUTION).apply()
+        .putBoolean(KEY_AUTO_CHECK, on && app.dsh.mobile.BuildConfig.POCKET_ONLINE_UPDATE).apply()
 
     /**
      * 仅在 WiFi（不计费网络）下自动下载。
