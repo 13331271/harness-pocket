@@ -1910,4 +1910,6 @@
     <string name="setting_engine_sub_starting">กำลังเริ่ม…</string>
     <string name="setting_engine_sub_safe">โหมดปลอดภัย</string>
     <string name="setting_engine_sub_not_running">ไม่ได้ทำงาน — แตะเพื่อดูรายละเอียด</string>
+    <string name="setting_sessions">เซสชัน</string>
+    <string name="setting_sessions_sub">ตรวจและลบบทสนทนาทีละรายการ</string>
 </resources>

@@ -862,6 +862,24 @@ runCatching { (application as DshApp).supervisor.webUrl() }
             },
             "DshAndroidBack",
         )
+        // v0.2.5：设置入口优先由页面挂在侧栏「更多」行最右侧（JS 测量 DOM），
+        // 页面找不到锚点时会 reportAnchor(false)，原生再退回右下角齿轮。
+        webView.addJavascriptInterface(
+            object : Any() {
+                @android.webkit.JavascriptInterface
+                fun open() {
+                    runOnUiThread {
+                        startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+                    }
+                }
+
+                @android.webkit.JavascriptInterface
+                fun reportAnchor(found: Boolean) {
+                    runOnUiThread { setSettingsEntryFallbackVisible(!found) }
+                }
+            },
+            "DshAndroidSettings",
+        )
         webView.webViewClient = object : WebViewClient() {
             // onPageFinished/evaluateJavascript is too late for module initialization.
             override fun shouldInterceptRequest(
@@ -983,6 +1001,12 @@ runCatching { (application as DshApp).supervisor.webUrl() }
                         .use { it.readBytes().toString(Charsets.UTF_8) }
                     view.evaluateJavascript(js, null)
                 }.onFailure { logWebView("back guard inject failed: ${it.message}") }
+                // v0.2.5：把设置入口挂到侧栏「更多」行最右侧（找不到时保留原生兜底）。
+                runCatching {
+                    val js = assets.open("js/settings-entry.js")
+                        .use { it.readBytes().toString(Charsets.UTF_8) }
+                    view.evaluateJavascript(js, null)
+                }.onFailure { logWebView("settings entry inject failed: ${it.message}") }
                 // v1.4.6：视口缩放必须在**启动遮罩收起之前**定稿，并在遮罩之下整页
                 // 重栅格化一次。旧顺序是「先 dismissSplash()、再改 meta」——用户会先看到
                 // 按 initial-scale=1 画好的首屏（含登录/开始使用弹窗），紧接着整页缩放
@@ -1214,6 +1238,9 @@ runCatching { (application as DshApp).supervisor.webUrl() }
      */
     private var islandCollapsed = false
 
+    /** 页面没能挂上「更多」行时的原生兜底入口（v0.2.5）。 */
+    private var settingsEntryFallback: View? = null
+
     /** Main-screen gear entry view tag (v0.2.2). */
     private val SETTINGS_ENTRY_TAG = "main-settings-entry"
     private var sidePanel: IslandSidePanel? = null
@@ -1291,6 +1318,14 @@ runCatching { (application as DshApp).supervisor.webUrl() }
      * · 贴顶 + 未收起：胶囊可见，把手隐藏（它此刻没用）。
      * 这样「合并/展开」只改 [islandCollapsed] 与 [islandDock]，渲染总是收敛。
      */
+    /** JS 侧是否已把设置入口挂到侧栏（v0.2.5）。true 时隐藏原生兜底齿轮。 */
+    private var settingsEntryFallbackWanted = true
+
+    private fun setSettingsEntryFallbackVisible(visible: Boolean) {
+        settingsEntryFallbackWanted = visible
+        settingsEntryFallback?.visibility = if (visible) View.VISIBLE else View.GONE
+    }
+
     /**
      * 主界面唯一的设置入口（v0.2.2）。
      *
@@ -1321,6 +1356,8 @@ runCatching { (application as DshApp).supervisor.webUrl() }
             marginEnd = (8 * d).toInt()
         }
         container.addView(button, lp)
+        settingsEntryFallback = button
+        button.visibility = if (settingsEntryFallbackWanted) View.VISIBLE else View.GONE
         button.setOnApplyWindowInsetsListener { view, insets ->
             val navBottom = if (android.os.Build.VERSION.SDK_INT >= 30) {
                 insets.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom

@@ -346,6 +346,10 @@ class SettingsActivity : ThemedActivity() {
         findViewById<LinearLayout>(R.id.rowEngine).setOnClickListener {
             showEngineStatusDialog()
         }
+        // v0.2.5：会话管理（可逐个删除，删除进回收站）
+        findViewById<LinearLayout>(R.id.rowSessions).setOnClickListener {
+            startActivity(Intent(this, WipeChatsActivity::class.java))
+        }
         refreshEngineRow()
 
         // —— 其他：语言 Language（v1.2.120：en/de/zh 三选一，默认 en）——

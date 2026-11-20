@@ -1966,4 +1966,6 @@
     <string name="setting_engine_sub_starting">Startet…</string>
     <string name="setting_engine_sub_safe">Sicherer Modus</string>
     <string name="setting_engine_sub_not_running">Läuft nicht – tippen für Details</string>
+    <string name="setting_sessions">Sitzungen</string>
+    <string name="setting_sessions_sub">Unterhaltungen einzeln prüfen und löschen</string>
 </resources>

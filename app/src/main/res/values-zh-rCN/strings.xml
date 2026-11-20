@@ -1963,4 +1963,6 @@
     <string name="setting_engine_sub_starting">启动中…</string>
     <string name="setting_engine_sub_safe">安全模式</string>
     <string name="setting_engine_sub_not_running">未运行，点此看详情</string>
+    <string name="setting_sessions">会话管理</string>
+    <string name="setting_sessions_sub">逐个查看并删除对话（删除进回收站）</string>
 </resources>

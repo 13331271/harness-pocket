@@ -1960,4 +1960,6 @@
     <string name="setting_engine_sub_starting">Starting…</string>
     <string name="setting_engine_sub_safe">Safe mode</string>
     <string name="setting_engine_sub_not_running">Not running — tap for details</string>
+    <string name="setting_sessions">Sessions</string>
+    <string name="setting_sessions_sub">Review and delete individual conversations</string>
 </resources>

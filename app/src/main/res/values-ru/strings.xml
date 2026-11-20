@@ -1960,4 +1960,6 @@
     <string name="setting_engine_sub_starting">Запуск…</string>
     <string name="setting_engine_sub_safe">Безопасный режим</string>
     <string name="setting_engine_sub_not_running">Не запущен — нажмите для подробностей</string>
+    <string name="setting_sessions">Сеансы</string>
+    <string name="setting_sessions_sub">Просмотр и удаление отдельных диалогов</string>
 </resources>

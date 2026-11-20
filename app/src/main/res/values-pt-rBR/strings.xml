@@ -1920,4 +1920,6 @@
     <string name="setting_engine_sub_starting">Iniciando…</string>
     <string name="setting_engine_sub_safe">Modo seguro</string>
     <string name="setting_engine_sub_not_running">Não está rodando — toque para detalhes</string>
+    <string name="setting_sessions">Sessões</string>
+    <string name="setting_sessions_sub">Revisar e excluir conversas individuais</string>
 </resources>
