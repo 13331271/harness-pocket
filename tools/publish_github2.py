@@ -182,7 +182,7 @@ def main() -> int:
         time.sleep(args.pace)
 
     st, commit = with_backoff(lambda: request("POST", f"/repos/{owner}/{repo}/git/commits", token, {
-        "message": "Harness Pocket 0.2.2: engine 0.2.2-rc.5, status island moved into settings",
+        "message": "Harness Pocket 0.2.2: engine 0.2.2-rc.3, island retired, new icon",
         "tree": tree_sha,
         "parents": [parent],
     }))

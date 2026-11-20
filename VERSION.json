@@ -1,0 +1,10 @@
+﻿{
+  "app": "Harness Pocket",
+  "appVersion": "0.2.2-local",
+  "versionCode": 4,
+  "bundledEngine": "0.2.2-rc.3",
+  "runtimePackage": "2026.11.18-pocket-28af96ab",
+  "runtimeSha256": "2652dd2d3de9e8fd978d8944f4dd5705f41677aa7ec75d9c4c47af1edaf6f35c",
+  "upstreamRuntime": "v1.6.0-beta.19",
+  "note": "0.2.2-rc.5 exists on npm only; no prebuilt Android runtime and the ARM64 Node cannot run on the build host."
+}
